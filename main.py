@@ -114,8 +114,8 @@ def status_handler(message):
     
     response = "📋 Қазіргі кезек:\n\n"
     response += f"🍳 Тамақ: {duties['food']['current']}\n   Келесі: {duties['food']['next']}\n\n"
-    response += f"💧 Су: {duties['water']['current']}\n   Келесі: {duties['water']['next']}\n\n"
-    response += f"🗑 Қоқыс: {duties['trash']['current']}\n   Келесі: {duties['trash']['next']}"
+    response += f"💧 Су әкелді: {duties['water']['current']}\n   Келесі: {duties['water']['next']}\n\n"
+    response += f"🗑 Қоқыс шығарды: {duties['trash']['current']}\n   Келесі: {duties['trash']['next']}"
     
     bot.send_message(message.chat.id, response)
 
@@ -292,6 +292,50 @@ def fix_duties_handler(message):
     response += f"💧 Су: {duties['water']['current']}\n   Келесі: {duties['water']['next']}\n"
     
     bot.reply_to(message, response)
+
+@bot.message_handler(commands=['set_water'])
+@check_auth
+def set_water_handler(message):
+    """Handle /set_water command to set current water duty person"""
+    try:
+        # Get the name from the message
+        name = message.text.split()[1]
+        # Update the water duty
+        new_duty = db.set_duty_index('water', name)
+        bot.send_message(
+            message.chat.id,
+            f"✅ Установлен текущий человек для воды:\n"
+            f"💧 Текущий: {new_duty['current']}\n"
+            f"Следующий: {new_duty['next']}"
+        )
+    except (IndexError, ValueError) as e:
+        bot.send_message(
+            message.chat.id,
+            "❌ Ошибка: Используйте команду так:\n"
+            "/set_water Имя"
+        )
+
+@bot.message_handler(commands=['set_food'])
+@check_auth
+def set_food_handler(message):
+    """Handle /set_food command to set current food duty person"""
+    try:
+        # Get the name from the message
+        name = message.text.split()[1]
+        # Update the food duty
+        new_duty = db.set_duty_index('food', name)
+        bot.send_message(
+            message.chat.id,
+            f"✅ Установлен текущий человек для приготовления еды:\n"
+            f"🍳 Текущий: {new_duty['current']}\n"
+            f"Следующий: {new_duty['next']}"
+        )
+    except (IndexError, ValueError) as e:
+        bot.send_message(
+            message.chat.id,
+            "❌ Ошибка: Используйте команду так:\n"
+            "/set_food Имя"
+        )
 
 # Start bot
 if __name__ == '__main__':
