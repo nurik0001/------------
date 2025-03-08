@@ -14,21 +14,11 @@ class Database:
         """Try to connect to MongoDB with retries"""
         for attempt in range(max_retries):
             try:
-                # Parse the MongoDB URI to get database name
-                uri = MONGO_URI
-                if '?' in uri:
-                    db_name = uri.split('/')[-1].split('?')[0]
-                else:
-                    db_name = uri.split('/')[-1]
-
-                # If database name is empty in URI, use default
-                if not db_name:
-                    db_name = DB_NAME
-
-                self.client = MongoClient(uri)
+                self.client = MongoClient(MONGO_URI)
                 # Test the connection
                 self.client.server_info()
-                self.db = self.client[db_name]
+                # Select the specific database after successful authentication
+                self.db = self.client[DB_NAME]
                 self._setup_collections()
                 print("Successfully connected to MongoDB")
                 return
