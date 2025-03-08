@@ -114,8 +114,8 @@ def status_handler(message):
     
     response = "📋 Қазіргі кезек:\n\n"
     response += f"🍳 Тамақ: {duties['food']['current']}\n   Келесі: {duties['food']['next']}\n\n"
-    response += f"💧 Су : {duties['water']['current']}\n   Келесі: {duties['water']['next']}\n\n"
-    response += f"🗑 Қоқыс : {duties['trash']['current']}\n   Келесі: {duties['trash']['next']}"
+    response += f"💧 Су әкелді: {duties['water']['next']}\n   Келесі кезекте: {duties['water']['current']}\n\n"
+    response += f"🗑 Қоқыс шығарды: {duties['trash']['next']}\n   Келесі кезекте: {duties['trash']['current']}"
     
     bot.send_message(message.chat.id, response)
 
@@ -152,7 +152,7 @@ def trash_handler(message):
         f"Келесі кезекте: {duty['next']}"
     )
 
-def notify_next_person(duty_type: str, current_name: str, next_name: str):
+def notify_next_person(duty_type: str, next_name: str, current_name: str):
     """Send notification to the group chat about duty completion and next person"""
     try:
         if duty_type == 'water':
@@ -175,28 +175,40 @@ def notify_next_person(duty_type: str, current_name: str, next_name: str):
 def button_handler(message):
     """Handle button presses for checking duties"""
     if message.text == "💧 Су әкелдім ✅":
-        current_user = USERS_ORDER[AUTHORIZED_USERS.index(message.from_user.id)]
-        new_duty = db.update_duty('water', message.from_user.id)
-        bot.send_message(
-            message.chat.id,
-            f"✅ Рахмет!\n\n"
-            f"💧 Келесі су әкелетін: {new_duty['current']}\n"
-            f"Келесі: {new_duty['next']}"
-        )
-        # Notify next person
-        notify_next_person('water', current_user, new_duty['current'])
+        try:
+            current_user = USERS_ORDER[AUTHORIZED_USERS.index(message.from_user.id)]
+            new_duty = db.update_duty('water', message.from_user.id)
+            bot.send_message(
+                message.chat.id,
+                f"✅ Рахмет!\n\n"
+                f"💧 {current_user} су әкелді\n"
+                f"Келесі кезекте: {new_duty['current']}"
+            )
+            # Notify next person
+            notify_next_person('water', new_duty['current'], current_user)
+        except ValueError:
+            bot.send_message(
+                message.chat.id,
+                "❌ Қате: сіздің ID-ңыз тіркелмеген. Әкімшіге хабарласыңыз."
+            )
         
     elif message.text == "🗑 Қоқыс шығардым ✅":
-        current_user = USERS_ORDER[AUTHORIZED_USERS.index(message.from_user.id)]
-        new_duty = db.update_duty('trash', message.from_user.id)
-        bot.send_message(
-            message.chat.id,
-            f"✅ Рахмет!\n\n"
-            f"🗑 Келесі қоқыс шығаратын: {new_duty['current']}\n"
-            f"Келесі: {new_duty['next']}"
-        )
-        # Notify next person
-        notify_next_person('trash', current_user, new_duty['current'])
+        try:
+            current_user = USERS_ORDER[AUTHORIZED_USERS.index(message.from_user.id)]
+            new_duty = db.update_duty('trash', message.from_user.id)
+            bot.send_message(
+                message.chat.id,
+                f"✅ Рахмет!\n\n"
+                f"🗑 {current_user} қоқыс шығарды\n"
+                f"Келесі кезекте: {new_duty['current']}"
+            )
+            # Notify next person
+            notify_next_person('trash', new_duty['current'], current_user)
+        except ValueError:
+            bot.send_message(
+                message.chat.id,
+                "❌ Қате: сіздің ID-ңыз тіркелмеген. Әкімшіге хабарласыңыз."
+            )
         
     elif message.text == "🍳 Бүгін тамақ кім?":
         duty = db.get_current_duty('food')
