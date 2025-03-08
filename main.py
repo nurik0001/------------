@@ -273,6 +273,26 @@ scheduler.add_job(update_food_duty, 'cron', hour=0, minute=0, timezone='Asia/Alm
 scheduler.add_job(send_cooking_notification, 'cron', hour=16, minute=0, timezone='Asia/Almaty')
 scheduler.start()
 
+@bot.message_handler(commands=['fix_duties'])
+def fix_duties_handler(message):
+    """Fix current duties order"""
+    if message.from_user.id not in AUTHORIZED_USERS:
+        bot.reply_to(message, "⛔️ У вас нет доступа к этой команде")
+        return
+
+    # Устанавливаем Галыма текущим по еде
+    db.set_duty_index('food', "Галым")
+    
+    # Устанавливаем Наурызбека текущим по воде (чтобы следующим был Галым)
+    db.set_duty_index('water', "Наурызбек")
+    
+    duties = db.get_all_duties()
+    response = "✅ Порядок обновлен:\n\n"
+    response += f"🍳 Тамақ: {duties['food']['current']}\n   Келесі: {duties['food']['next']}\n\n"
+    response += f"💧 Су: {duties['water']['current']}\n   Келесі: {duties['water']['next']}\n"
+    
+    bot.reply_to(message, response)
+
 # Start bot
 if __name__ == '__main__':
     print("Bot started...")
