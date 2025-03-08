@@ -2,21 +2,45 @@ from pymongo import MongoClient
 from datetime import datetime
 from typing import Optional, Dict, Any
 from config import MONGO_URI, DB_NAME, COLLECTIONS, USERS_ORDER
+import time
 
 class Database:
     def __init__(self):
-        self.client = MongoClient(MONGO_URI)
-        self.db = self.client[DB_NAME]
-        self._setup_collections()
+        self.client = None
+        self.db = None
+        self._connect_with_retry()
+
+    def _connect_with_retry(self, max_retries=5):
+        """Try to connect to MongoDB with retries"""
+        for attempt in range(max_retries):
+            try:
+                self.client = MongoClient(MONGO_URI)
+                # Test the connection
+                self.client.server_info()
+                self.db = self.client[DB_NAME]
+                self._setup_collections()
+                print("Successfully connected to MongoDB")
+                return
+            except Exception as e:
+                print(f"Failed to connect to MongoDB (attempt {attempt + 1}/{max_retries}): {e}")
+                if attempt < max_retries - 1:
+                    time.sleep(2)  # Wait 2 seconds before retrying
+                else:
+                    print("Could not connect to MongoDB after multiple attempts")
+                    raise
 
     def _setup_collections(self):
         """Initialize collections if they don't exist"""
-        if COLLECTIONS['duties'] not in self.db.list_collection_names():
-            self.db[COLLECTIONS['duties']].insert_many([
-                {'type': 'food', 'current_index': 0, 'last_updated': datetime.now()},
-                {'type': 'water', 'current_index': 0, 'last_updated': datetime.now()},
-                {'type': 'trash', 'current_index': 0, 'last_updated': datetime.now()}
-            ])
+        try:
+            if COLLECTIONS['duties'] not in self.db.list_collection_names():
+                self.db[COLLECTIONS['duties']].insert_many([
+                    {'type': 'food', 'current_index': 0, 'last_updated': datetime.now()},
+                    {'type': 'water', 'current_index': 0, 'last_updated': datetime.now()},
+                    {'type': 'trash', 'current_index': 0, 'last_updated': datetime.now()}
+                ])
+        except Exception as e:
+            print(f"Error setting up collections: {e}")
+            raise
 
     def get_current_duty(self, duty_type: str) -> Dict[str, Any]:
         """Get current person responsible for duty"""
