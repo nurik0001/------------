@@ -32,12 +32,12 @@ AUTHORIZED_USERS: List[int] = [
 
 # User order for duties
 USERS_ORDER = [
-    "Мейрамбек",
-    "Максат",
-    "Бейбит",
     "Нурдаулет",
     "Галым",
-    "Наурызбек"
+    "Наурызбек",
+    "Мейрамбек",
+    "Максат",
+    "Бейбит"
 ]
 
 # Water duty order
