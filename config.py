@@ -58,7 +58,7 @@ COLLECTIONS = {
 
 # Duty types
 DUTY_TYPES = {
-    'food': 'еда',
-    'water': 'вода',
-    'trash': 'мусор'
+    'food': 'тамақ',
+    'water': 'су әкелді',
+    'trash': 'қоқыс шығарды'
 } 
