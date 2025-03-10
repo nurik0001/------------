@@ -114,8 +114,8 @@ def status_handler(message):
     
     response = "📋 Қазіргі кезек:\n\n"
     response += f"🍳 Тамақ: {duties['food']['current']}\n   Келесі: {duties['food']['next']}\n\n"
-    response += f"💧 Соңғы су әкелген: Ғалым\n   Келесі кезекте: {duties['water']['current']}\n\n"
-    response += f"🗑 Қоқыс шығарды: {duties['trash']['next']}\n   Келесі кезекте: {duties['trash']['current']}"
+    response += f"💧 Соңғы су әкелген: Ғалым\n   Келесі кезекте: Бейбіт\n\n"
+    response += f"🗑 Соңғы қоқыс шығарған: Мақсат\n   Келесі кезекте: Мейрамбек"
     
     bot.send_message(message.chat.id, response)
 
@@ -177,13 +177,12 @@ def button_handler(message):
     if message.text == "💧 Су әкелдім ✅":
         try:
             current_user = USERS_ORDER[AUTHORIZED_USERS.index(message.from_user.id)]
-            # Проверяем, что текущий пользователь следующий в очереди
-            duties = db.get_all_duties()
-            if current_user != duties['water']['current']:
+            # Проверяем, что текущий пользователь Бейбіт (следующий после Ғалым)
+            if current_user != "Бейбіт":
                 bot.send_message(
                     message.chat.id,
                     f"❌ Қате: Қазір сіздің кезегіңіз емес!\n"
-                    f"Су әкелу кезегі: {duties['water']['current']}"
+                    f"Су әкелу кезегі: Бейбіт"
                 )
                 return
                 
@@ -205,13 +204,12 @@ def button_handler(message):
     elif message.text == "🗑 Қоқыс шығардым ✅":
         try:
             current_user = USERS_ORDER[AUTHORIZED_USERS.index(message.from_user.id)]
-            # Проверяем, что текущий пользователь следующий в очереди
-            duties = db.get_all_duties()
-            if current_user != duties['trash']['current']:
+            # Проверяем, что текущий пользователь Мейрамбек (следующий после Мақсат)
+            if current_user != "Мейрамбек":
                 bot.send_message(
                     message.chat.id,
                     f"❌ Қате: Қазір сіздің кезегіңіз емес!\n"
-                    f"Қоқыс шығару кезегі: {duties['trash']['current']}"
+                    f"Қоқыс шығару кезегі: Мейрамбек"
                 )
                 return
                 
@@ -241,8 +239,8 @@ def button_handler(message):
         duties = db.get_all_duties()
         response = "📋 Текущая очередь:\n\n"
         response += f"🍳 Еда: {duties['food']['current']}\n   Следующий: {duties['food']['next']}\n\n"
-        response += f"💧 Последний принес воду: Ғалым\n   Следующий в очереди: {duties['water']['current']}\n\n"
-        response += f"🗑 Вынес мусор: {duties['trash']['next']}\n   Следующий в очереди: {duties['trash']['current']}"
+        response += f"💧 Последний принес воду: Ғалым\n   Следующий в очереди: Бейбіт\n\n"
+        response += f"🗑 Последний вынес мусор: Мақсат\n   Следующий в очереди: Мейрамбек"
         bot.send_message(message.chat.id, response)
     elif message.text == "📅 Тамақ кестесі":
         duty = db.get_current_duty('food')
@@ -314,11 +312,13 @@ def fix_duties_handler(message):
 
     # Устанавливаем Бейбіт текущим по воде (так как Ғалым последний принес)
     db.set_duty_index('water', "Бейбіт")
+    # Устанавливаем Мейрамбек текущим по мусору (так как Мақсат последний вынес)
+    db.set_duty_index('trash', "Мейрамбек")
     
     duties = db.get_all_duties()
     response = "✅ Очередь обновлена:\n\n"
-    response += f"💧 Последний принес воду: Ғалым\n   Следующий в очереди: {duties['water']['current']}\n\n"
-    response += f"🗑 Мусор: {duties['trash']['current']}\n   Следующий: {duties['trash']['next']}\n"
+    response += f"💧 Последний принес воду: Ғалым\n   Следующий в очереди: Бейбіт\n\n"
+    response += f"🗑 Последний вынес мусор: Мақсат\n   Следующий в очереди: Мейрамбек\n"
     
     bot.reply_to(message, response)
 
