@@ -239,10 +239,10 @@ def button_handler(message):
         )
     elif message.text == "📋 Кезек тізімі":
         duties = db.get_all_duties()
-        response = "📋 Қазіргі кезек:\n\n"
-        response += f"🍳 Тамақ: {duties['food']['current']}\n   Келесі: {duties['food']['next']}\n\n"
-        response += f"💧 Соңғы су әкелген: Ғалым\n   Келесі кезекте: {duties['water']['current']}\n\n"
-        response += f"🗑 Қоқыс шығарды: {duties['trash']['next']}\n   Келесі кезекте: {duties['trash']['current']}"
+        response = "📋 Текущая очередь:\n\n"
+        response += f"🍳 Еда: {duties['food']['current']}\n   Следующий: {duties['food']['next']}\n\n"
+        response += f"💧 Последний принес воду: Ғалым\n   Следующий в очереди: {duties['water']['current']}\n\n"
+        response += f"🗑 Вынес мусор: {duties['trash']['next']}\n   Следующий в очереди: {duties['trash']['current']}"
         bot.send_message(message.chat.id, response)
     elif message.text == "📅 Тамақ кестесі":
         duty = db.get_current_duty('food')
@@ -316,9 +316,9 @@ def fix_duties_handler(message):
     db.set_duty_index('water', "Бейбіт")
     
     duties = db.get_all_duties()
-    response = "✅ Кезек жаңартылды:\n\n"
-    response += f"💧 Соңғы су әкелген: Ғалым\n   Келесі кезекте: {duties['water']['current']}\n\n"
-    response += f"🗑 Қоқыс: {duties['trash']['current']}\n   Келесі: {duties['trash']['next']}\n"
+    response = "✅ Очередь обновлена:\n\n"
+    response += f"💧 Последний принес воду: Ғалым\n   Следующий в очереди: {duties['water']['current']}\n\n"
+    response += f"🗑 Мусор: {duties['trash']['current']}\n   Следующий: {duties['trash']['next']}\n"
     
     bot.reply_to(message, response)
 
