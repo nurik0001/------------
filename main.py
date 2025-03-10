@@ -366,6 +366,28 @@ def set_food_handler(message):
             "/set_food Имя"
         )
 
+@bot.message_handler(commands=['set_trash'])
+@check_auth
+def set_trash_handler(message):
+    """Handle /set_trash command to set current trash duty person"""
+    try:
+        # Get the name from the message
+        name = message.text.split()[1]
+        # Update the trash duty
+        new_duty = db.set_duty_index('trash', name)
+        bot.send_message(
+            message.chat.id,
+            f"✅ Установлен текущий человек для выноса мусора:\n"
+            f"🗑 Текущий: {new_duty['current']}\n"
+            f"Следующий: {new_duty['next']}"
+        )
+    except (IndexError, ValueError) as e:
+        bot.send_message(
+            message.chat.id,
+            "❌ Ошибка: Используйте команду так:\n"
+            "/set_trash Имя"
+        )
+
 # Start bot
 if __name__ == '__main__':
     print("Bot started...")
