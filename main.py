@@ -114,7 +114,7 @@ def status_handler(message):
     
     response = "📋 Қазіргі кезек:\n\n"
     response += f"🍳 Тамақ: {duties['food']['current']}\n   Келесі: {duties['food']['next']}\n\n"
-    response += f"💧 Су әкелді: {duties['water']['next']}\n   Келесі кезекте: {duties['water']['current']}\n\n"
+    response += f"💧 Соңғы су әкелген: Ғалым\n   Келесі кезекте: {duties['water']['current']}\n\n"
     response += f"🗑 Қоқыс шығарды: {duties['trash']['next']}\n   Келесі кезекте: {duties['trash']['current']}"
     
     bot.send_message(message.chat.id, response)
@@ -241,8 +241,8 @@ def button_handler(message):
         duties = db.get_all_duties()
         response = "📋 Қазіргі кезек:\n\n"
         response += f"🍳 Тамақ: {duties['food']['current']}\n   Келесі: {duties['food']['next']}\n\n"
-        response += f"💧 Су : {duties['water']['current']}\n   Келесі: {duties['water']['next']}\n\n"
-        response += f"🗑 Қоқыс : {duties['trash']['current']}\n   Келесі: {duties['trash']['next']}"
+        response += f"💧 Соңғы су әкелген: Ғалым\n   Келесі кезекте: {duties['water']['current']}\n\n"
+        response += f"🗑 Қоқыс шығарды: {duties['trash']['next']}\n   Келесі кезекте: {duties['trash']['current']}"
         bot.send_message(message.chat.id, response)
     elif message.text == "📅 Тамақ кестесі":
         duty = db.get_current_duty('food')
