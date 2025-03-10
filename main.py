@@ -86,9 +86,9 @@ def chatid_handler(message):
     """Handle /chatid command - shows current chat ID"""
     chat_id = message.chat.id
     chat_type = message.chat.type
-    response = f"💡 Информация о чате:\n\n"
-    response += f"ID чата: {chat_id}\n"
-    response += f"Тип чата: {chat_type}"
+    response = f"💡 Чат туралы ақпарат:\n\n"
+    response += f"Чат ID: {chat_id}\n"
+    response += f"Чат түрі: {chat_type}"
     bot.send_message(message.chat.id, response)
 
 @bot.message_handler(commands=['көмек'])
@@ -115,7 +115,7 @@ def status_handler(message):
     response = "📋 Қазіргі кезек:\n\n"
     response += f"🍳 Тамақ: {duties['food']['current']}\n   Келесі: {duties['food']['next']}\n\n"
     response += f"💧 Соңғы су әкелген: Ғалым\n   Келесі кезекте: Бейбіт\n\n"
-    response += f"🗑 Соңғы қоқыс шығарған: Мақсат\n   Келесі кезекте: Мейрамбек"
+    response += f"🗑 Соңғы қоқыс шығарған: Бейбіт\n   Келесі кезекте: Нұрдәулет"
     
     bot.send_message(message.chat.id, response)
 
@@ -204,12 +204,12 @@ def button_handler(message):
     elif message.text == "🗑 Қоқыс шығардым ✅":
         try:
             current_user = USERS_ORDER[AUTHORIZED_USERS.index(message.from_user.id)]
-            # Проверяем, что текущий пользователь Мейрамбек (следующий после Мақсат)
-            if current_user != "Мейрамбек":
+            # Проверяем, что текущий пользователь Нұрдәулет (следующий после Бейбіт)
+            if current_user != "Нұрдәулет":
                 bot.send_message(
                     message.chat.id,
                     f"❌ Қате: Қазір сіздің кезегіңіз емес!\n"
-                    f"Қоқыс шығару кезегі: Мейрамбек"
+                    f"Қоқыс шығару кезегі: Нұрдәулет"
                 )
                 return
                 
@@ -237,10 +237,10 @@ def button_handler(message):
         )
     elif message.text == "📋 Кезек тізімі":
         duties = db.get_all_duties()
-        response = "📋 Текущая очередь:\n\n"
-        response += f"🍳 Еда: {duties['food']['current']}\n   Следующий: {duties['food']['next']}\n\n"
-        response += f"💧 Последний принес воду: Ғалым\n   Следующий в очереди: Бейбіт\n\n"
-        response += f"🗑 Последний вынес мусор: Мақсат\n   Следующий в очереди: Мейрамбек"
+        response = "📋 Қазіргі кезек:\n\n"
+        response += f"🍳 Тамақ: {duties['food']['current']}\n   Келесі: {duties['food']['next']}\n\n"
+        response += f"💧 Соңғы су әкелген: Ғалым\n   Келесі кезекте: Бейбіт\n\n"
+        response += f"🗑 Соңғы қоқыс шығарған: Бейбіт\n   Келесі кезекте: Нұрдәулет"
         bot.send_message(message.chat.id, response)
     elif message.text == "📅 Тамақ кестесі":
         duty = db.get_current_duty('food')
@@ -307,18 +307,18 @@ scheduler.start()
 def fix_duties_handler(message):
     """Fix current duties order"""
     if message.from_user.id not in AUTHORIZED_USERS:
-        bot.reply_to(message, "⛔️ У вас нет доступа к этой команде")
+        bot.reply_to(message, "⛔️ Сізде бұл командаға рұқсат жоқ")
         return
 
     # Устанавливаем Бейбіт текущим по воде (так как Ғалым последний принес)
     db.set_duty_index('water', "Бейбіт")
-    # Устанавливаем Мейрамбек текущим по мусору (так как Мақсат последний вынес)
-    db.set_duty_index('trash', "Мейрамбек")
+    # Устанавливаем Нұрдәулет текущим по мусору (так как Бейбіт последний вынес)
+    db.set_duty_index('trash', "Нұрдәулет")
     
     duties = db.get_all_duties()
-    response = "✅ Очередь обновлена:\n\n"
-    response += f"💧 Последний принес воду: Ғалым\n   Следующий в очереди: Бейбіт\n\n"
-    response += f"🗑 Последний вынес мусор: Мақсат\n   Следующий в очереди: Мейрамбек\n"
+    response = "✅ Кезек жаңартылды:\n\n"
+    response += f"💧 Соңғы су әкелген: Ғалым\n   Келесі кезекте: Бейбіт\n\n"
+    response += f"🗑 Соңғы қоқыс шығарған: Бейбіт\n   Келесі кезекте: Нұрдәулет\n"
     
     bot.reply_to(message, response)
 
@@ -333,15 +333,15 @@ def set_water_handler(message):
         new_duty = db.set_duty_index('water', name)
         bot.send_message(
             message.chat.id,
-            f"✅ Установлен текущий человек для воды:\n"
-            f"💧 Текущий: {new_duty['current']}\n"
-            f"Следующий: {new_duty['next']}"
+            f"✅ Су әкелетін адам орнатылды:\n"
+            f"💧 Қазіргі: {new_duty['current']}\n"
+            f"Келесі: {new_duty['next']}"
         )
     except (IndexError, ValueError) as e:
         bot.send_message(
             message.chat.id,
-            "❌ Ошибка: Используйте команду так:\n"
-            "/set_water Имя"
+            "❌ Қате: Команданы былай қолданыңыз:\n"
+            "/set_water Аты"
         )
 
 @bot.message_handler(commands=['set_food'])
@@ -355,15 +355,15 @@ def set_food_handler(message):
         new_duty = db.set_duty_index('food', name)
         bot.send_message(
             message.chat.id,
-            f"✅ Установлен текущий человек для приготовления еды:\n"
-            f"🍳 Текущий: {new_duty['current']}\n"
-            f"Следующий: {new_duty['next']}"
+            f"✅ Тамақ жасайтын адам орнатылды:\n"
+            f"🍳 Қазіргі: {new_duty['current']}\n"
+            f"Келесі: {new_duty['next']}"
         )
     except (IndexError, ValueError) as e:
         bot.send_message(
             message.chat.id,
-            "❌ Ошибка: Используйте команду так:\n"
-            "/set_food Имя"
+            "❌ Қате: Команданы былай қолданыңыз:\n"
+            "/set_food Аты"
         )
 
 @bot.message_handler(commands=['set_trash'])
@@ -377,15 +377,15 @@ def set_trash_handler(message):
         new_duty = db.set_duty_index('trash', name)
         bot.send_message(
             message.chat.id,
-            f"✅ Установлен текущий человек для выноса мусора:\n"
-            f"🗑 Текущий: {new_duty['current']}\n"
-            f"Следующий: {new_duty['next']}"
+            f"✅ Қоқыс шығаратын адам орнатылды:\n"
+            f"🗑 Қазіргі: {new_duty['current']}\n"
+            f"Келесі: {new_duty['next']}"
         )
     except (IndexError, ValueError) as e:
         bot.send_message(
             message.chat.id,
-            "❌ Ошибка: Используйте команду так:\n"
-            "/set_trash Имя"
+            "❌ Қате: Команданы былай қолданыңыз:\n"
+            "/set_trash Аты"
         )
 
 # Start bot
