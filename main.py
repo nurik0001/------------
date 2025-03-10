@@ -177,6 +177,15 @@ def button_handler(message):
     if message.text == "💧 Су әкелдім ✅":
         try:
             current_user = USERS_ORDER[AUTHORIZED_USERS.index(message.from_user.id)]
+            # Проверяем, что текущий пользователь следующий в очереди
+            duties = db.get_all_duties()
+            if current_user != duties['water']['current']:
+                bot.send_message(
+                    message.chat.id,
+                    f"❌ Қате: Қазір {duties['water']['current']} су әкелу керек"
+                )
+                return
+                
             new_duty = db.update_duty('water', message.from_user.id)
             bot.send_message(
                 message.chat.id,
@@ -195,6 +204,15 @@ def button_handler(message):
     elif message.text == "🗑 Қоқыс шығардым ✅":
         try:
             current_user = USERS_ORDER[AUTHORIZED_USERS.index(message.from_user.id)]
+            # Проверяем, что текущий пользователь следующий в очереди
+            duties = db.get_all_duties()
+            if current_user != duties['trash']['current']:
+                bot.send_message(
+                    message.chat.id,
+                    f"❌ Қате: Қазір {duties['trash']['current']} қоқыс шығару керек"
+                )
+                return
+                
             new_duty = db.update_duty('trash', message.from_user.id)
             bot.send_message(
                 message.chat.id,
