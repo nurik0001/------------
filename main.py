@@ -317,7 +317,7 @@ def fix_duties_handler(message):
     
     duties = db.get_all_duties()
     response = "✅ Кезек жаңартылды:\n\n"
-    response += f"💧 Су әкелді: Ғалым\n   Келесі кезекте: {duties['water']['current']}\n\n"
+    response += f"💧 Соңғы су әкелген: Ғалым\n   Келесі кезекте: {duties['water']['current']}\n\n"
     response += f"🗑 Қоқыс: {duties['trash']['current']}\n   Келесі: {duties['trash']['next']}\n"
     
     bot.reply_to(message, response)
