@@ -2,7 +2,7 @@ import telebot
 from telebot.types import ReplyKeyboardMarkup, KeyboardButton
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime, timedelta
-from config import BOT_TOKEN, AUTHORIZED_USERS, DUTY_TYPES, USERS_ORDER, GROUP_CHAT_ID
+from config import BOT_TOKEN, AUTHORIZED_USERS, DUTY_TYPES, USERS_ORDER, GROUP_CHAT_ID, WATER_ORDER
 from database import Database
 
 # Initialize bot and database
@@ -191,12 +191,14 @@ def button_handler(message):
                 )
                 return
                 
-            # Находим следующего в очереди после Бейбіт
-            current_index = USERS_ORDER.index("Бейбіт")
-            next_index = (current_index + 1) % len(USERS_ORDER)
-            next_user = USERS_ORDER[next_index]
+            # Находим следующего в очереди после Бейбіт по списку WATER_ORDER
+            current_index = WATER_ORDER.index("Бейбіт")
+            next_index = (current_index + 1) % len(WATER_ORDER)
+            next_user = WATER_ORDER[next_index]  # Это будет Мақсат
             
-            new_duty = db.update_duty('water', message.from_user.id)
+            # Обновляем в базе следующего пользователя
+            db.set_duty_index('water', next_user)
+            
             bot.send_message(
                 message.chat.id,
                 f"✅ Рахмет!\n\n"
@@ -259,9 +261,13 @@ def button_handler(message):
         trash_duty = db.get_current_duty('trash')
         next_trash_user = trash_duty['current']
         
+        # Получаем текущего пользователя для воды из базы
+        water_duty = db.get_current_duty('water')
+        next_water_user = water_duty['current']
+        
         response = "📋 Қазіргі кезек:\n\n"
         response += f"🍳 Тамақ: {duties['food']['current']}\n   Келесі: {duties['food']['next']}\n\n"
-        response += f"💧 Соңғы су әкелген: Ғалым\n   Келесі кезекте: Бейбіт\n\n"
+        response += f"💧 Соңғы су әкелген: Ғалым\n   Келесі кезекте: {next_water_user}\n\n"
         response += f"🗑 Соңғы қоқыс шығарған: Нұрдәулет\n   Келесі кезекте: {next_trash_user}"
         
         bot.send_message(message.chat.id, response)
