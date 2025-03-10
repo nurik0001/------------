@@ -165,11 +165,11 @@ def notify_next_person(duty_type: str, next_name: str, current_name: str):
         print(f"Failed to send notification: {e}")
 
 @bot.message_handler(func=lambda message: message.text in [
-    "💧 Су әкелдім ✅", 
+    "💧 Су әкелдім  ✅", 
     "🗑 Қоқыс шығардым ✅", 
     "📋 Кезек тізімі", 
     "📅 Тамақ кестесі",
-    "🍳 Бүгін тамақ кім?"
+    "🍳 Бүгін тамақ кім??"
 ])
 @check_auth
 def button_handler(message):
