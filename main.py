@@ -199,7 +199,7 @@ def button_handler(message):
                 f"Келесі кезекте: {new_duty['current']}"
             )
             # Notify next person
-            notify_next_person('water', new_duty['current'], current_user)
+            # notify_next_person('water', new_duty['current'], current_user)
         except ValueError:
             bot.send_message(
                 message.chat.id,
@@ -231,7 +231,7 @@ def button_handler(message):
                 f"Келесі кезекте: {next_user}"
             )
             # Notify next person
-            notify_next_person('trash', next_user, current_user)
+            # notify_next_person('trash', next_user, current_user)
         except ValueError:
             bot.send_message(
                 message.chat.id,
@@ -300,7 +300,7 @@ def send_cooking_notification():
     duty = db.get_current_duty('food')
     current_cook = duty['current']
     
-    notification = f"🔔 Ескерту!\n\n🍳 Бүгін тамақ жасайтын: {current_cook}"
+    notification = f"�� Ескерту!\n\n🍳 Бүгін тамақ жасайтын: {current_cook}"
     
     try:
         bot.send_message(GROUP_CHAT_ID, notification)
