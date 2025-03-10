@@ -170,11 +170,11 @@ def notify_next_person(duty_type: str, next_name: str, current_name: str):
         print(f"Failed to send notification: {e}")
 
 @bot.message_handler(func=lambda message: message.text in [
-    "💧 Су әкелдім  ✅", 
+    "💧 Су әкелдім ✅", 
     "🗑 Қоқыс шығардым ✅", 
     "📋 Кезек тізімі", 
     "📅 Тамақ кестесі",
-    "🍳 Бүгін тамақ кім??"
+    "🍳 Бүгін тамақ кім?"
 ])
 @check_auth
 def button_handler(message):
@@ -191,15 +191,20 @@ def button_handler(message):
                 )
                 return
                 
+            # Находим следующего в очереди после Бейбіт
+            current_index = USERS_ORDER.index("Бейбіт")
+            next_index = (current_index + 1) % len(USERS_ORDER)
+            next_user = USERS_ORDER[next_index]
+            
             new_duty = db.update_duty('water', message.from_user.id)
             bot.send_message(
                 message.chat.id,
                 f"✅ Рахмет!\n\n"
                 f"💧 {current_user} су әкелді\n"
-                f"Келесі кезекте: {new_duty['current']}"
+                f"Келесі кезекте: {next_user}"
             )
             # Notify next person
-            # notify_next_person('water', new_duty['current'], current_user)
+            # notify_next_person('water', next_user, current_user)
         except ValueError:
             bot.send_message(
                 message.chat.id,
@@ -223,7 +228,9 @@ def button_handler(message):
             next_index = (current_index + 1) % len(USERS_ORDER)
             next_user = USERS_ORDER[next_index]
             
-            new_duty = db.update_duty('trash', message.from_user.id)
+            # Обновляем в базе следующего пользователя
+            db.set_duty_index('trash', next_user)
+            
             bot.send_message(
                 message.chat.id,
                 f"✅ Рахмет!\n\n"
@@ -247,10 +254,16 @@ def button_handler(message):
         )
     elif message.text == "📋 Кезек тізімі":
         duties = db.get_all_duties()
+        
+        # Получаем текущего пользователя для мусора из базы
+        trash_duty = db.get_current_duty('trash')
+        next_trash_user = trash_duty['current']
+        
         response = "📋 Қазіргі кезек:\n\n"
         response += f"🍳 Тамақ: {duties['food']['current']}\n   Келесі: {duties['food']['next']}\n\n"
         response += f"💧 Соңғы су әкелген: Ғалым\n   Келесі кезекте: Бейбіт\n\n"
-        response += f"🗑 Соңғы қоқыс шығарған: Бейбіт\n   Келесі кезекте: Нұрдәулет"
+        response += f"🗑 Соңғы қоқыс шығарған: Нұрдәулет\n   Келесі кезекте: {next_trash_user}"
+        
         bot.send_message(message.chat.id, response)
     elif message.text == "📅 Тамақ кестесі":
         duty = db.get_current_duty('food')
@@ -300,7 +313,7 @@ def send_cooking_notification():
     duty = db.get_current_duty('food')
     current_cook = duty['current']
     
-    notification = f"�� Ескерту!\n\n🍳 Бүгін тамақ жасайтын: {current_cook}"
+    notification = f"Ескерту!\n\n🍳 Бүгін тамақ жасайтын: {current_cook}"
     
     try:
         bot.send_message(GROUP_CHAT_ID, notification)
