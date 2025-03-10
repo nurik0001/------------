@@ -112,10 +112,15 @@ def status_handler(message):
     """Handle /status command"""
     duties = db.get_all_duties()
     
+    # Находим следующего после Нұрдәулет
+    current_index = USERS_ORDER.index("Нұрдәулет")
+    next_index = (current_index + 1) % len(USERS_ORDER)
+    next_trash_user = USERS_ORDER[next_index]
+    
     response = "📋 Қазіргі кезек:\n\n"
     response += f"🍳 Тамақ: {duties['food']['current']}\n   Келесі: {duties['food']['next']}\n\n"
     response += f"💧 Соңғы су әкелген: Ғалым\n   Келесі кезекте: Бейбіт\n\n"
-    response += f"🗑 Соңғы қоқыс шығарған: Бейбіт\n   Келесі кезекте: Нұрдәулет"
+    response += f"🗑 Соңғы қоқыс шығарған: Бейбіт\n   Келесі кезекте: {next_trash_user}"
     
     bot.send_message(message.chat.id, response)
 
@@ -204,7 +209,7 @@ def button_handler(message):
     elif message.text == "🗑 Қоқыс шығардым ✅":
         try:
             current_user = USERS_ORDER[AUTHORIZED_USERS.index(message.from_user.id)]
-            # Проверяем, что текущий пользователь Нұрдәулет (следующий после Бейбіт)
+            # Проверяем, что текущий пользователь Нұрдәулет
             if current_user != "Нұрдәулет":
                 bot.send_message(
                     message.chat.id,
@@ -213,15 +218,20 @@ def button_handler(message):
                 )
                 return
                 
+            # Находим следующего в очереди (Ғалым)
+            current_index = USERS_ORDER.index("Нұрдәулет")
+            next_index = (current_index + 1) % len(USERS_ORDER)
+            next_user = USERS_ORDER[next_index]
+            
             new_duty = db.update_duty('trash', message.from_user.id)
             bot.send_message(
                 message.chat.id,
                 f"✅ Рахмет!\n\n"
                 f"🗑 {current_user} қоқыс шығарды\n"
-                f"Келесі кезекте: {new_duty['current']}"
+                f"Келесі кезекте: {next_user}"
             )
             # Notify next person
-            notify_next_person('trash', new_duty['current'], current_user)
+            notify_next_person('trash', next_user, current_user)
         except ValueError:
             bot.send_message(
                 message.chat.id,
@@ -312,13 +322,13 @@ def fix_duties_handler(message):
 
     # Устанавливаем Бейбіт текущим по воде (так как Ғалым последний принес)
     db.set_duty_index('water', "Бейбіт")
-    # Устанавливаем Нұрдәулет текущим по мусору (так как Бейбіт последний вынес)
-    db.set_duty_index('trash', "Нұрдәулет")
+    # Устанавливаем Ғалым текущим по мусору (так как Бейбіт последний вынес)
+    db.set_duty_index('trash', "Ғалым")
     
     duties = db.get_all_duties()
     response = "✅ Кезек жаңартылды:\n\n"
     response += f"💧 Соңғы су әкелген: Ғалым\n   Келесі кезекте: Бейбіт\n\n"
-    response += f"🗑 Соңғы қоқыс шығарған: Бейбіт\n   Келесі кезекте: Нұрдәулет\n"
+    response += f"🗑 Соңғы қоқыс шығарған: Бейбіт\n   Келесі кезекте: Ғалым\n"
     
     bot.reply_to(message, response)
 
@@ -387,6 +397,24 @@ def set_trash_handler(message):
             "❌ Қате: Команданы былай қолданыңыз:\n"
             "/set_trash Аты"
         )
+
+@bot.message_handler(func=lambda message: message.text == "📋 Кезек тізімі")
+@check_auth
+def queue_list_handler(message):
+    """Handle queue list button press"""
+    duties = db.get_all_duties()
+    
+    # Находим следующего после Нұрдәулет
+    current_index = USERS_ORDER.index("Нұрдәулет")
+    next_index = (current_index + 1) % len(USERS_ORDER)
+    next_trash_user = USERS_ORDER[next_index]
+    
+    response = "📋 Қазіргі кезек:\n\n"
+    response += f"🍳 Тамақ: {duties['food']['current']}\n   Келесі: {duties['food']['next']}\n\n"
+    response += f"💧 Соңғы су әкелген: Ғалым\n   Келесі кезекте: Бейбіт\n\n"
+    response += f"🗑 Соңғы қоқыс шығарған: Бейбіт\n   Келесі кезекте: {next_trash_user}"
+    
+    bot.send_message(message.chat.id, response)
 
 # Start bot
 if __name__ == '__main__':
