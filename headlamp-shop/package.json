@@ -1,0 +1,26 @@
+{
+  "name": "headlamp-shop",
+  "version": "1.0.0",
+  "description": "Интернет-магазин автозапчастей для тюнинга оптики",
+  "main": "backend/src/app.js",
+  "scripts": {
+    "start": "cd backend && npm start",
+    "build": "cd frontend && npm run build",
+    "install": "cd backend && npm install && cd ../frontend && npm install",
+    "postinstall": "cd backend && npx prisma generate"
+  },
+  "engines": {
+    "node": "18.x"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yourusername/headlamp-shop.git"
+  },
+  "keywords": [
+    "ecommerce",
+    "headlamps",
+    "auto-parts"
+  ],
+  "author": "",
+  "license": "ISC"
+} 
