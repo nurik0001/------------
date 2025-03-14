@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
+const path = require('path');
 const { PrismaClient } = require('@prisma/client');
 const authRoutes = require('./routes/auth');
 const productsRoutes = require('./routes/products');
@@ -64,6 +65,19 @@ app.get('/api/products', async (req, res) => {
     res.status(500).json({ error: 'Ошибка при получении продуктов' });
   }
 });
+
+// Статические файлы фронтенда (только в production)
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../public')));
+  
+  // Все остальные GET запросы направляем на index.html
+  app.get('*', (req, res) => {
+    // Исключаем API маршруты
+    if (!req.path.startsWith('/api/')) {
+      res.sendFile(path.join(__dirname, '../public/index.html'));
+    }
+  });
+}
 
 // Error handling middleware
 app.use((err, req, res, next) => {
