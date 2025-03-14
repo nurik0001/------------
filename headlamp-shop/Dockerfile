@@ -19,8 +19,9 @@ RUN npm install
 WORKDIR /app
 COPY . .
 
-# Генерируем Prisma клиент
+# Форматируем и генерируем Prisma клиент
 WORKDIR /app/backend
+RUN npx prisma format
 RUN npx prisma generate
 
 # Собираем фронтенд
