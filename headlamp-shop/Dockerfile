@@ -1,3 +1,4 @@
+# Этап сборки бэкенда
 FROM node:18-alpine AS backend-builder
 
 WORKDIR /app/backend
